@@ -15,21 +15,33 @@ IISLogsReplayConsole.exe -p path -d delimiter -pn pathNb -qsn queryStringNb -vn 
 ## Mandatory Parameters 
 
 -p  	 : path where is located the iislogs file/directory
+
 -d  	 : delimiter
+
 -pn 	 : int that locate on each line of iislog the uri-stem
+
 -qsn	 : int that locate on each line of iislog the uri-query
+
 -vn 	 : int that locate on each line of iislog the method (verb)
+
 -s  	 : base uri address
 
 ## Optional Parameters **
 
 -ft 	 : if in -p you inform the directory path, ft is needed to inform the filetype (example csv)
+
 -bl 	 : int that tell to the program in which line we begin
+
 -uan	 : int that locate on each line of iislog the user-agent
+
 -H  	 : to specify others (http)Headers
+
 -C  	 : to specify (http)Cookies
+
 -mr 	 : to specify a regexp to execute only the request that match -mr
+
 -mp 	 : to specify a regexp pattern for Replace somthing on path or queryString
+
 -r  	 : if you have specified -mp, -r is to specify by what you want to replace your -mp
 
 
