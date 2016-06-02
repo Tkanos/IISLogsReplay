@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IISLogsReplay", "IISLogsReplay.csproj", "{421DDB10-E72A-4B7A-A1E4-9A4EA071202C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IISLogsReplayConsole", "..\IISLogsReplayConsole\IISLogsReplayConsole.csproj", "{8207A1DB-C94C-49A9-A019-23C277F161BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{421DDB10-E72A-4B7A-A1E4-9A4EA071202C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{421DDB10-E72A-4B7A-A1E4-9A4EA071202C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{421DDB10-E72A-4B7A-A1E4-9A4EA071202C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8207A1DB-C94C-49A9-A019-23C277F161BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8207A1DB-C94C-49A9-A019-23C277F161BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8207A1DB-C94C-49A9-A019-23C277F161BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8207A1DB-C94C-49A9-A019-23C277F161BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
