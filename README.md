@@ -12,9 +12,7 @@ I won't do a big generic project, only a simple project that fits my needs, but 
 IISLogsReplayConsole.exe -p path -d delimiter -pn pathNb -qsn queryStringNb -vn verbNr -s server [-ft fileType] [-bl beginLine] [-uan userAgentNb] [-H headers] [-C cookies] [-mr matchRequest] [-mp modifyPattern] [-r replacement] 
 
 
-
-** Mandatory Parameters **
-
+## Mandatory Parameters 
 
 -p  	 : path where is located the iislogs file/directory
 -d  	 : delimiter
@@ -23,10 +21,7 @@ IISLogsReplayConsole.exe -p path -d delimiter -pn pathNb -qsn queryStringNb -vn 
 -vn 	 : int that locate on each line of iislog the method (verb)
 -s  	 : base uri address
 
-
-
-** Optional Parameters **
-
+## Optional Parameters **
 
 -ft 	 : if in -p you inform the directory path, ft is needed to inform the filetype (example csv)
 -bl 	 : int that tell to the program in which line we begin
@@ -38,15 +33,11 @@ IISLogsReplayConsole.exe -p path -d delimiter -pn pathNb -qsn queryStringNb -vn 
 -r  	 : if you have specified -mp, -r is to specify by what you want to replace your -mp
 
 
-
-**  Example **
-
+##  Example **
 
 IISLogsReplayConsole.exe -p "D:\IssLogs\myIIslog.log" -d ' ' -pn 3 -qsn 4 -vn 9 -s http:\mybetaserver.com
 
-
 IISLogsReplayConsole.exe -p "D:\IssLogs" -d ' ' -pn 3 -qsn 4 -vn 9 -s http:\mybetaserver.com -ft .log -bl 4
-
 
 IISLogsReplayConsole.exe -p "D:\IssLogs" -d ' ' -pn 3 -qsn 4 -vn 9 -s http:\mybetaserver.com -ft .log -bl 4 -uan 2 -H "HeaderName: HeaderValue" -C "cookieName1: CookieValue1; CookieName2:CookieValue2" -mr "v1" -mp "v1" -r "v2" 
 
