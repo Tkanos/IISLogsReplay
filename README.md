@@ -15,6 +15,7 @@ IISLogsReplayConsole.exe -p path -d delimiter -pn pathNb -qsn queryStringNb -vn 
 ## Mandatory Parameters 
 
 -p  	 : path where is located the iislogs file/directory
+
 -d  	 : delimiter
 -pn 	 : int that locate on each line of iislog the uri-stem
 -qsn	 : int that locate on each line of iislog the uri-query
