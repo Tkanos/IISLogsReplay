@@ -43,6 +43,8 @@ IISLogsReplayConsole.exe -p path -d delimiter -pn pathNb -qsn queryStringNb -vn 
 
 -r  	 : if you have specified -mp, -r is to specify by what you want to replace your -mp
 
+-tm    : int representing the Thread max (in parallelization) you want to use, by default it's sequencial (1)
+
 
 ##  Example
 
