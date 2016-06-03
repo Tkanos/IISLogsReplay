@@ -55,3 +55,7 @@ IISLogsReplayConsole.exe -p "D:\IssLogs" -d ' ' -pn 3 -qsn 4 -vn 9 -s http://myb
 ```
 IISLogsReplayConsole.exe -p "D:\IssLogs" -d ' ' -pn 3 -qsn 4 -vn 9 -s http://mybetaserver.com -ft .log -bl 5 -uan 2 -H "HeaderName: HeaderValue" -C "cookieName1: CookieValue1; CookieName2:CookieValue2" -mr "v1" -mp "v1" -r "v2" 
 ```
+
+
+#Remaining
+Not yet parralellized
