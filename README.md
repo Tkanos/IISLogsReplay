@@ -5,13 +5,13 @@ In order to Load Test my servers.
 
 I won't do a big generic project, only a simple project that fits my needs, but if you want to fork it, or even ameliorate it, you're very welcome.
 
-# Application Help
+## Application Help
 
 ```
 IISLogsReplayConsole.exe -p path -d delimiter -pn pathNb -qsn queryStringNb -vn verbNr -s server [-ft fileType] [-bl beginLine] [-uan userAgentNb] [-H headers] [-C cookies] [-mr matchRequest] [-mp modifyPattern] [-r replacement] 
 ```
 
-## Mandatory Parameters 
+### Mandatory Parameters 
 
 -p  	 : path where is located the iislogs file/directory
 
@@ -25,7 +25,7 @@ IISLogsReplayConsole.exe -p path -d delimiter -pn pathNb -qsn queryStringNb -vn 
 
 -s  	 : base uri address
 
-## Optional Parameters
+### Optional Parameters
 
 -ft 	 : if in -p you inform the directory path, ft is needed to inform the filetype (example csv)
 
