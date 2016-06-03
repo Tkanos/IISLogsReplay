@@ -19,10 +19,10 @@ namespace IISLogsReplayConsole
             #region Get Values
             string path, server, fileType, headers, cookies, matchRequest, modifyPattern, replacement;
             char delimiter;
-            int pathNb, queryStringNb, verbNb, beginLine;
+            int pathNb, queryStringNb, verbNb, beginLine, threadMax;
             int? userAgentNb;
 
-            if(!GetValues(args, out path, out delimiter, out pathNb, out queryStringNb, out verbNb, out server, out fileType, out beginLine, out userAgentNb, out headers, out cookies, out matchRequest, out modifyPattern, out replacement))
+            if(!GetValues(args, out path, out delimiter, out pathNb, out queryStringNb, out verbNb, out server, out fileType, out beginLine, out userAgentNb, out headers, out cookies, out matchRequest, out modifyPattern, out replacement, out threadMax))
             {
                 Help();
                 return;
@@ -30,7 +30,7 @@ namespace IISLogsReplayConsole
             #endregion
 
             var replayer = new Replayer(path, delimiter, pathNb, queryStringNb, verbNb, fileType, beginLine, userAgentNb.HasValue ? userAgentNb.Value : -1);
-            replayer.Replay(server, headers, cookies, matchRequest, modifyPattern, replacement);
+            replayer.Replay(server, headers, cookies, matchRequest, modifyPattern, replacement, threadMax);
 
 
         }
@@ -51,7 +51,7 @@ namespace IISLogsReplayConsole
         }
 
         static bool GetValues(string[] args, out string path, out char delimiter, out int pathNb, out int queryStringNb, out int verbNb, out string server, 
-            out string fileType, out int beginLine, out int? userAgentNb, out string headers, out string cookies, out string matchRequest, out string modifyPattern, out string replacement)
+            out string fileType, out int beginLine, out int? userAgentNb, out string headers, out string cookies, out string matchRequest, out string modifyPattern, out string replacement, out int threadMax)
         {
             path = GetArgsValue(args, "-p");
             string delimiterTemp = GetArgsValue(args, "-d");
@@ -75,6 +75,11 @@ namespace IISLogsReplayConsole
             int userAgentNbTemp = 0;
             if(int.TryParse(GetArgsValue(args, "-uan"), out userAgentNbTemp))
                 userAgentNb = userAgentNbTemp;
+
+            threadMax = 1;
+            int threadMaxTemp = 0;
+            if (int.TryParse(GetArgsValue(args, "-tm"), out threadMaxTemp))
+                threadMax = threadMaxTemp > 1 ? threadMaxTemp : 1;
 
             if (string.IsNullOrEmpty(path) || delimiterTemp.Length != 1 || string.IsNullOrEmpty(server) || !pn || !qsn || !vn)
                 return false;
@@ -120,15 +125,16 @@ namespace IISLogsReplayConsole
             Console.WriteLine("-mr \t : to specify a regexp to execute only the request that match -mr");
             Console.WriteLine("-mp \t : to specify a regexp pattern for Replace somthing on path or queryString");
             Console.WriteLine("-r  \t : if you have specified -mp, -r is to specify by what you want to replace your -mp");
+            Console.WriteLine("-tm \t : int representing the Thread max (in parallelization) you want to use, by default it's sequencial (1)");
 
             Console.WriteLine("\n\n");
             Console.WriteLine("Example");
             Console.WriteLine("\n");
-            Console.WriteLine("IISLogsReplayConsole.exe -p \"D:\\IssLogs\\myIIslog.log\" -d ' ' -pn 3 -qsn 4 -vn 9 -s http:\\mybetaserver.com");
+            Console.WriteLine("IISLogsReplayConsole.exe -p \"D:\\IssLogs\\myIIslog.log\" -d ' ' -pn 3 -qsn 4 -vn 9 -s http://mybetaserver.com");
             Console.WriteLine("\n");
-            Console.WriteLine("IISLogsReplayConsole.exe -p \"D:\\IssLogs\" -d ' ' -pn 3 -qsn 4 -vn 9 -s http:\\mybetaserver.com -ft .log -bl 4");
+            Console.WriteLine("IISLogsReplayConsole.exe -p \"D:\\IssLogs\" -d ' ' -pn 3 -qsn 4 -vn 9 -s http://mybetaserver.com -ft .log -bl 5");
             Console.WriteLine("\n");
-            Console.WriteLine("IISLogsReplayConsole.exe -p \"D:\\IssLogs\" -d ' ' -pn 3 -qsn 4 -vn 9 -s http:\\mybetaserver.com -ft .log -bl 4 -uan 2 -H \"HeaderName: HeaderValue\" -C \"cookieName1: CookieValue1; CookieName2:CookieValue2\" -mr \"v1\" -mp \"v1\" -r \"v2\" ");
+            Console.WriteLine("IISLogsReplayConsole.exe -p \"D:\\IssLogs\" -d ' ' -pn 3 -qsn 4 -vn 9 -s http://mybetaserver.com -ft .log -bl 5 -uan 2 -H \"HeaderName: HeaderValue\" -C \"cookieName1: CookieValue1; CookieName2:CookieValue2\" -mr \"v1\" -mp \"v1\" -r \"v2\" ");
 
         }
     }

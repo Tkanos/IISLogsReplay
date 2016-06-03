@@ -1,6 +1,7 @@
 ﻿
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace IISLogsReplay
 {
@@ -34,26 +35,42 @@ namespace IISLogsReplay
         }
         #endregion
 
-        public void Replay(string server, string headers = null, string cookies = null, string matchRequest = null, string modifyPattern = null, string replacement = null)
+        public void Replay(string server, string headers = null, string cookies = null, string matchRequest = null, string modifyPattern = null, string replacement = null, int threadMax = 1)
         {
             //Parse Files
             List<string[]> iislogs = FileParser.Parse(_path, _delimiter, _fileType, _beginLine);
-            foreach(var line in iislogs )
+
+            if (threadMax <= 1) //Sequencial
             {
-                string verb = line[_verbNb];
-                if (verb == "GET")
+                foreach (var line in iislogs)
                 {
-                    string path = line[_pathNb];
-                    string queryString = line[_queryStringNb];
+                    RelayAction(line, server, headers, cookies, matchRequest, modifyPattern, replacement);
+                }
+            }
+            else //Parallelized
+            {
+                Parallel.ForEach<string[]>(iislogs, new ParallelOptions { MaxDegreeOfParallelism = threadMax }, (line) =>
+                {
+                    RelayAction(line, server, headers, cookies, matchRequest, modifyPattern, replacement);
+                });
+            }
+        }
 
-                    if (MatchRequest(path, queryString, matchRequest))
-                    {
-                        ChangeUri(ref path, ref queryString, modifyPattern, replacement);
+        private void RelayAction(string[] line, string server, string headers = null, string cookies = null, string matchRequest = null, string modifyPattern = null, string replacement = null)
+        {
+            string verb = line[_verbNb];
+            if (verb == "GET")
+            {
+                string path = line[_pathNb];
+                string queryString = line[_queryStringNb];
 
-                        string userAgent = _userAgentNb != -1 ? line[_userAgentNb] : null;
+                if (MatchRequest(path, queryString, matchRequest))
+                {
+                    ChangeUri(ref path, ref queryString, modifyPattern, replacement);
 
-                        WebClientHelper.Get(server, path, queryString, userAgent, headers, cookies);
-                    }
+                    string userAgent = _userAgentNb != -1 ? line[_userAgentNb] : null;
+
+                    WebClientHelper.Get(server, path, queryString, userAgent, headers, cookies);
                 }
             }
         }
