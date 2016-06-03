@@ -25,7 +25,7 @@ IISLogsReplayConsole.exe -p path -d delimiter -pn pathNb -qsn queryStringNb -vn 
 
 -s  	 : base uri address
 
-## Optional Parameters **
+## Optional Parameters
 
 -ft 	 : if in -p you inform the directory path, ft is needed to inform the filetype (example csv)
 
@@ -44,7 +44,7 @@ IISLogsReplayConsole.exe -p path -d delimiter -pn pathNb -qsn queryStringNb -vn 
 -r  	 : if you have specified -mp, -r is to specify by what you want to replace your -mp
 
 
-##  Example **
+##  Example
 
 ```
 IISLogsReplayConsole.exe -p "D:\IssLogs\myIIslog.log" -d ' ' -pn 3 -qsn 4 -vn 9 -s http://mybetaserver.com
