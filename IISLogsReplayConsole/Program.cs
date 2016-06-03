@@ -89,7 +89,7 @@ namespace IISLogsReplayConsole
             if(args.Contains(pattern))
             {
                 int nb = Array.IndexOf(args, pattern);
-                if (args.Length < nb + 1)
+                if (args.Length > nb + 1)
                     return args[nb + 1];
             }
 

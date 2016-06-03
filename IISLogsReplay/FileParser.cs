@@ -19,7 +19,7 @@ namespace IISLogsReplay
                     result.AddRange(ParseFile(file, delimiter, beginLine));
                 }
             }
-            else //if(File.Exists(path))
+            else if(File.Exists(path))
             {
                 result.AddRange(ParseFile(path, delimiter, beginLine));
             }
@@ -50,6 +50,7 @@ namespace IISLogsReplay
                         for (int i = 0; i < delimited.Length; i++)
                         {
                             delimited[i] = ReplaceCharBetweenQuotes(delimited[i], delimiter, false);
+                            delimited[i] = RemoveQuotes(delimited[i]);
                         }
 
                         result.Add(delimited);
@@ -86,6 +87,11 @@ namespace IISLogsReplay
             }
 
             return line;
+        }
+
+        private static string RemoveQuotes(string line)
+        {
+            return line.Replace("\"", string.Empty);
         }
 
     }

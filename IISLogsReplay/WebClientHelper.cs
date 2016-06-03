@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -10,28 +11,37 @@ namespace IISLogsReplay
 
         public static string Get(string server, string path, string queryString, string userAgent = null, string headers = null, string cookies = null)
         {
-            using (WebClient client = new WebClient())
+            try
             {
-                if(userAgent != null)
+                using (WebClient client = new WebClient())
                 {
-                    client.Headers.Add("user-agent", userAgent);
+                    if (userAgent != null)
+                    {
+                        client.Headers.Add("user-agent", userAgent);
+                    }
+
+                    if (headers != null)
+                    {
+                        client.Headers.Add(headers); //it only works for only one header, have to change for many headers
+                    }
+
+                    if (cookies != null)
+                    {
+                        client.Headers.Add(HttpRequestHeader.Cookie, cookies); // Format : ("cookiename1=cookievalue1;cookiename2=cookievalue2");
+                    }
+
+                    var uri = BuildUrl(server, path, queryString);
+                    var data = client.OpenRead(uri);
+
+                    return data.ConvertToString();
                 }
-
-                if(headers != null)
-                {
-                    client.Headers.Add(headers); //it only works for only one header, have to change for many headers
-                }
-
-                if(cookies != null)
-                {
-                    client.Headers.Add(HttpRequestHeader.Cookie, cookies); // Format : ("cookiename1=cookievalue1;cookiename2=cookievalue2");
-                }
-
-                var uri = BuildUrl(server, path, queryString);
-                var data = client.OpenRead(uri);
-
-                return data.ConvertToString();
             }
+            catch(Exception ex)
+            {
+
+            }
+
+            return null;
         }
 
         #region Private Methods

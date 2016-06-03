@@ -23,17 +23,16 @@ namespace IISLogsReplay
         {
             _path = path;
             _delimiter = delimiter;
-            _pathNb = pathNb;
-            _queryStringNb = queryStringNb;
-            _verbNb = verbNb;
+            _pathNb = pathNb - 1;
+            _queryStringNb = queryStringNb - 1;
+            _verbNb = verbNb - 1;
 
             //Optional
             _fileType = fileType;
             _beginLine = beginLine;
-            _userAgentNb = userAgentNb;
+            _userAgentNb = userAgentNb - 1;
         }
         #endregion
-
 
         public void Replay(string server, string headers = null, string cookies = null, string matchRequest = null, string modifyPattern = null, string replacement = null)
         {
@@ -49,7 +48,7 @@ namespace IISLogsReplay
 
                     if (MatchRequest(path, queryString, matchRequest))
                     {
-                        ChangeUri(path, queryString, modifyPattern, replacement);
+                        ChangeUri(ref path, ref queryString, modifyPattern, replacement);
 
                         string userAgent = _userAgentNb != -1 ? line[_userAgentNb] : null;
 
@@ -74,7 +73,7 @@ namespace IISLogsReplay
             return false;
         }
 
-        private void ChangeUri(string path, string queryString, string modifyPattern = null, string replacement = null)
+        private void ChangeUri(ref string path, ref string queryString, string modifyPattern = null, string replacement = null)
         {
             if (modifyPattern == null || replacement == null)
                 return;
