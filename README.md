@@ -52,9 +52,9 @@ IISLogsReplayConsole.exe -p path -d delimiter -pn pathNb -qsn queryStringNb -vn 
 IISLogsReplayConsole.exe -p "D:\IssLogs\myIIslog.log" -d ' ' -pn 3 -qsn 4 -vn 9 -s http:\mybetaserver.com
 ```
 ```
-IISLogsReplayConsole.exe -p "D:\IssLogs" -d ' ' -pn 3 -qsn 4 -vn 9 -s http:\mybetaserver.com -ft .log -bl 4
+IISLogsReplayConsole.exe -p "D:\IssLogs" -d ' ' -pn 3 -qsn 4 -vn 9 -s http:\\mybetaserver.com -ft .log -bl 4
 ```
 ```
-IISLogsReplayConsole.exe -p "D:\IssLogs" -d ' ' -pn 3 -qsn 4 -vn 9 -s http:\mybetaserver.com -ft .log -bl 4 -uan 2 -H "HeaderName: HeaderValue" -C "cookieName1: CookieValue1; CookieName2:CookieValue2" -mr "v1" -mp "v1" -r "v2" 
+IISLogsReplayConsole.exe -p "D:\IssLogs" -d ' ' -pn 3 -qsn 4 -vn 9 -s http:\\mybetaserver.com -ft .log -bl 4 -uan 2 -H "HeaderName: HeaderValue" -C "cookieName1: CookieValue1; CookieName2:CookieValue2" -mr "v1" -mp "v1" -r "v2" 
 ```
 
