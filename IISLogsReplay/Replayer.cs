@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Text;
+using System.Net.Http;
 
 namespace IISLogsReplay
 {
@@ -48,18 +49,18 @@ namespace IISLogsReplay
 
             Console.WriteLine("{0} requets found", iislogs.Count);
 
-            List<HttpStatusCode?> statuses = new List<HttpStatusCode?>();
+            List<Tuple<HttpStatusCode, TimeSpan>> webResponses = new List<Tuple<HttpStatusCode, TimeSpan>>();
 
             var watch = new Stopwatch();
             watch.Start();
             int counter = 0;
-
             if (threadMax <= 1) //Sequencial
             {
                 threadMax = 1;
                 foreach (var line in iislogs)
                 {
-                    statuses.Add(ReplayAction(line, server, headers, cookies));
+                    webResponses.Add(ReplayAction(line, server, headers, cookies));
+
                     if (counter % 100 == 0)
                         Console.WriteLine("{0} requests completed", counter);
 
@@ -71,7 +72,8 @@ namespace IISLogsReplay
                 object sync = new object();
                 Parallel.ForEach<string[]>(iislogs, new ParallelOptions { MaxDegreeOfParallelism = threadMax }, (line) =>
                 {
-                    statuses.Add(ReplayAction(line, server, headers, cookies));
+                    webResponses.Add(ReplayAction(line, server, headers, cookies));
+                       
                     if (counter % 100 == 0)
                     {
                         lock (sync)
@@ -87,16 +89,42 @@ namespace IISLogsReplay
 
             watch.Stop();
 
-            var statusesCount = (from p in statuses
-                                 group p by p into g
+            var statusesCount = (from p in webResponses
+                                 where p != null
+                                 group p.Item1 by p.Item1 into g
                                  select new { Status = (int)g.Key, Count = g.ToList().Count }).ToList();
+
+            double min = double.MaxValue;
+            double med = 0;
+            double max = 0;
+            int i = 0;
+            foreach(var webresponse in webResponses)
+            {
+                if(webresponse != null)
+                {
+                    if (min > webresponse.Item2.TotalMilliseconds)
+                        min = webresponse.Item2.TotalMilliseconds;
+
+                    if (max < webresponse.Item2.TotalMilliseconds)
+                        max = webresponse.Item2.TotalMilliseconds;
+
+                    med = med + webresponse.Item2.TotalMilliseconds;
+                    i++;
+                }
+            }
+            med = med / i;
 
             Console.WriteLine("\nReport :");
             Console.WriteLine("Total Time taken : {0:0.00} ms ({1:N0} ticks)", watch.ElapsedMilliseconds, watch.ElapsedTicks);
             Console.WriteLine("Completed Requets : {0:N0} iterations", iislogs.Count);
             Console.WriteLine("Requests per seconds : {0:N0}", (double)iislogs.Count/ watch.Elapsed.TotalSeconds);
+            Console.WriteLine("");
             Console.WriteLine("Time per Request : {0:N0} ms", ((double)(watch.ElapsedMilliseconds / iislogs.Count)* threadMax));
             Console.WriteLine("Time per Request : {0:N0} ms", (double)(watch.ElapsedMilliseconds / iislogs.Count));
+            Console.WriteLine("Min : {0:N0} ms", min);
+            Console.WriteLine("Median : {0:N0} ms",med);
+            Console.WriteLine("Max : {0:N0} ms", max);
+            Console.WriteLine("");
             Console.WriteLine("Status : ");
             foreach (var status in statusesCount)
             {
@@ -104,7 +132,7 @@ namespace IISLogsReplay
             }
         }
 
-        private HttpStatusCode? ReplayAction(string[] line, string server, string headers = null, string cookies = null)
+        private Tuple<HttpStatusCode, TimeSpan> ReplayAction(string[] line, string server, string headers = null, string cookies = null)
         {
             string verb = line[_verbNb];
             if (verb == "GET")

@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -12,7 +13,7 @@ namespace IISLogsReplay
     public static class WebClientHelper
     {
 
-        public static HttpStatusCode? Get(string server, string path, string queryString, string userAgent = null, string headers = null, string cookies = null)
+        public static Tuple<HttpStatusCode, TimeSpan> Get(string server, string path, string queryString, string userAgent = null, string headers = null, string cookies = null)
         {
             try
             {
@@ -41,11 +42,12 @@ namespace IISLogsReplay
                     }
 
                     var uri = BuildUrl(path, queryString);
+                    var stopWatch = Stopwatch.StartNew();
                     Task<HttpResponseMessage> response = client.GetAsync(uri);
                     response.Wait();
                     if (response.Result != null && response.Result.IsSuccessStatusCode)
                     {
-                        return response.Result.StatusCode;
+                        return new Tuple<HttpStatusCode, TimeSpan>(response.Result.StatusCode, stopWatch.Elapsed);
                     }
                 }
 
