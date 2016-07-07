@@ -32,6 +32,8 @@ namespace IISLogsReplayConsole
             var replayer = new Replayer(path, delimiter, pathNb, queryStringNb, verbNb, fileType, beginLine, userAgentNb.HasValue ? userAgentNb.Value : -1);
             replayer.Replay(server, headers, cookies, matchRequest, modifyPattern, replacement, threadMax);
 
+            Console.ReadKey();
+
 
         }
 

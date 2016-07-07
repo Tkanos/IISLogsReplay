@@ -2,39 +2,53 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace IISLogsReplay
 {
     public static class WebClientHelper
     {
 
-        public static string Get(string server, string path, string queryString, string userAgent = null, string headers = null, string cookies = null)
+        public static HttpStatusCode? Get(string server, string path, string queryString, string userAgent = null, string headers = null, string cookies = null)
         {
             try
             {
-                using (WebClient client = new WebClient())
+                using (var client = new HttpClient())
                 {
+                    client.BaseAddress = new Uri(server);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
                     if (userAgent != null)
                     {
-                        client.Headers.Add("user-agent", userAgent);
+                        client.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
                     }
 
                     if (headers != null)
                     {
-                        client.Headers.Add(headers); //it only works for only one header, have to change for many headers
+                        var dotsLength = headers.IndexOf(":");
+                        string name = headers.Substring(0, dotsLength);
+                        string value = headers.Substring(dotsLength+1).Trim();
+                        client.DefaultRequestHeaders.Add(name, value); //it only works for only one header, have to change for many headers
                     }
 
                     if (cookies != null)
                     {
-                        client.Headers.Add(HttpRequestHeader.Cookie, cookies); // Format : ("cookiename1=cookievalue1;cookiename2=cookievalue2");
+                        client.DefaultRequestHeaders.Add("Cookie", cookies); // Format : ("cookiename1=cookievalue1;cookiename2=cookievalue2");
                     }
 
-                    var uri = BuildUrl(server, path, queryString);
-                    var data = client.OpenRead(uri);
-
-                    return data.ConvertToString();
+                    var uri = BuildUrl(path, queryString);
+                    Task<HttpResponseMessage> response = client.GetAsync(uri);
+                    response.Wait();
+                    if (response.Result != null && response.Result.IsSuccessStatusCode)
+                    {
+                        return response.Result.StatusCode;
+                    }
                 }
+
             }
             catch(Exception ex)
             {
@@ -45,10 +59,9 @@ namespace IISLogsReplay
         }
 
         #region Private Methods
-        private static string BuildUrl(string server, string path, string queryString)
+        private static string BuildUrl(string path, string queryString)
         {
             StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.Append(server);
             urlBuilder.Append(path);
             if (!string.IsNullOrEmpty(queryString))
             {

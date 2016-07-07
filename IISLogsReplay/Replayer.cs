@@ -1,7 +1,11 @@
-﻿
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Linq;
+using System.Text;
 
 namespace IISLogsReplay
 {
@@ -40,26 +44,86 @@ namespace IISLogsReplay
             //Parse Files
             List<string[]> iislogs = FileParser.Parse(_path, _delimiter, _fileType, _beginLine);
 
+            iislogs = PrepareRequest(iislogs, matchRequest, modifyPattern, replacement);
+
+            Console.WriteLine("{0} requets found", iislogs.Count);
+
+            List<HttpStatusCode?> statuses = new List<HttpStatusCode?>();
+
+            var watch = new Stopwatch();
+            watch.Start();
+            int counter = 0;
+
             if (threadMax <= 1) //Sequencial
             {
+                threadMax = 1;
                 foreach (var line in iislogs)
                 {
-                    RelayAction(line, server, headers, cookies, matchRequest, modifyPattern, replacement);
+                    statuses.Add(ReplayAction(line, server, headers, cookies));
+                    if (counter % 100 == 0)
+                        Console.WriteLine("{0} requests completed", counter);
+
+                    counter++;
                 }
             }
             else //Parallelized
             {
+                object sync = new object();
                 Parallel.ForEach<string[]>(iislogs, new ParallelOptions { MaxDegreeOfParallelism = threadMax }, (line) =>
                 {
-                    RelayAction(line, server, headers, cookies, matchRequest, modifyPattern, replacement);
+                    statuses.Add(ReplayAction(line, server, headers, cookies));
+                    if (counter % 100 == 0)
+                    {
+                        lock (sync)
+                        {
+                            if (counter % 100 == 0)
+                                Console.WriteLine("{0} requests completed", counter);
+                        }
+                    }
+
+                    counter++;
                 });
+            }
+
+            watch.Stop();
+
+            var statusesCount = (from p in statuses
+                                 group p by p into g
+                                 select new { Status = (int)g.Key, Count = g.ToList().Count }).ToList();
+
+            Console.WriteLine("\nReport :");
+            Console.WriteLine("Total Time taken : {0:0.00} ms ({1:N0} ticks)", watch.ElapsedMilliseconds, watch.ElapsedTicks);
+            Console.WriteLine("Completed Requets : {0:N0} iterations", iislogs.Count);
+            Console.WriteLine("Requests per seconds : {0:N0}", (double)iislogs.Count/ watch.Elapsed.TotalSeconds);
+            Console.WriteLine("Time per Request : {0:N0} ms", ((double)(watch.ElapsedMilliseconds / iislogs.Count)* threadMax));
+            Console.WriteLine("Time per Request : {0:N0} ms", (double)(watch.ElapsedMilliseconds / iislogs.Count));
+            Console.WriteLine("Status : ");
+            foreach (var status in statusesCount)
+            {
+                Console.WriteLine("\t{0} : {1}", status.Status, status.Count);
             }
         }
 
-        private void RelayAction(string[] line, string server, string headers = null, string cookies = null, string matchRequest = null, string modifyPattern = null, string replacement = null)
+        private HttpStatusCode? ReplayAction(string[] line, string server, string headers = null, string cookies = null)
         {
             string verb = line[_verbNb];
             if (verb == "GET")
+            {
+                string path = line[_pathNb];
+                string queryString = line[_queryStringNb];
+                string userAgent = _userAgentNb != -1 ? line[_userAgentNb] : null;
+
+                return WebClientHelper.Get(server, path, queryString, userAgent, headers, cookies);
+            }
+
+            return null;
+        }
+
+        private List<string[]> PrepareRequest(List<string[]> allLogs, string matchRequest = null, string modifyPattern = null, string replacement = null)
+        {
+            List<string[]> result = new List<string[]>();
+
+            foreach(var line in allLogs)
             {
                 string path = line[_pathNb];
                 string queryString = line[_queryStringNb];
@@ -68,11 +132,14 @@ namespace IISLogsReplay
                 {
                     ChangeUri(ref path, ref queryString, modifyPattern, replacement);
 
-                    string userAgent = _userAgentNb != -1 ? line[_userAgentNb] : null;
+                    line[_pathNb] = path;
+                    line[_queryStringNb] = queryString;
 
-                    WebClientHelper.Get(server, path, queryString, userAgent, headers, cookies);
+                    result.Add(line);
                 }
             }
+
+            return result;
         }
 
         private bool MatchRequest(string path, string queryString, string matchRequest = null)
