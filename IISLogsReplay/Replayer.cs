@@ -51,6 +51,9 @@ namespace IISLogsReplay
 
             List<Tuple<HttpStatusCode, TimeSpan>> webResponses = new List<Tuple<HttpStatusCode, TimeSpan>>();
 
+            //Warm up
+            ReplayAction(iislogs[0], server, headers, cookies);
+
             var watch = new Stopwatch();
             watch.Start();
             int counter = 0;
