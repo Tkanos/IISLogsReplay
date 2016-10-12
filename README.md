@@ -1,3 +1,5 @@
+I have done this project quickly for my own use. I have to refactor it, to have better performances. But i think (when i have time) to do this project from scratch on Golang it will be better. I have put it in github if it can help people. but know that it's just a quick (and dirty) code done for a specific use.
+
 # IISLogsReplay
 
 I want to create a simple tool that takes IISLogs, Parse it, and then Resend (replay) the requests.
